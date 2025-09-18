@@ -8,9 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/usuarios")
+@CrossOrigin(origins = "*")
 public class UsuarioController {
 
     @Autowired
@@ -65,6 +68,24 @@ public class UsuarioController {
         } catch (IllegalStateException e) {
             // This handles the business rule: a client cannot have more than 3 rendimentos.
             return ResponseEntity.badRequest().body(null);
+        }
+    }
+
+    // Login endpoint
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData) {
+        String cpf = loginData.get("cpf");
+        String senha = loginData.get("senha");
+        
+        Optional<Usuario> usuario = usuarioService.buscarPorCpfESenha(cpf, senha);
+        
+        if (usuario.isPresent()) {
+            Map<String, Object> response = new HashMap<>();
+            response.put("usuario", usuario.get());
+            response.put("tipo", usuario.get().getTipoUsuario().toString());
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.badRequest().build();
         }
     }
 }

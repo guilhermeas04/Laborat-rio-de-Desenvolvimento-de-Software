@@ -27,6 +27,10 @@ public class UsuarioService {
         return usuarioRepository.findById(id);
     }
 
+    public Optional<Usuario> buscarPorCpfESenha(String cpf, String senha) {
+        return usuarioRepository.findByCpfAndSenha(cpf, senha);
+    }
+
     public Usuario salvar(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
