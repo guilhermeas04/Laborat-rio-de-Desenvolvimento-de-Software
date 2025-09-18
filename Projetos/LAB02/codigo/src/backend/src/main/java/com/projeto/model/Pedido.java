@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "pedidos") // Tabela "pedidos" no banco de dados
+@Table(name = "pedido") // Tabela "pedidos" no banco de dados
 public class Pedido {
     public enum StatusPedido {
         Em_analise,
@@ -29,9 +29,11 @@ public class Pedido {
     private Automovel automovel;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private StatusPedido status;
 
     @Temporal(TemporalType.DATE)
+    @Column(name = "data_pedido")
     private Date dataPedido;
 
     // Construtores

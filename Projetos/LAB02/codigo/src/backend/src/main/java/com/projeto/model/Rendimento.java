@@ -1,6 +1,6 @@
 package com.projeto.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference; // Add this line
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -15,7 +15,7 @@ public class Rendimento {
 
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("user-rendimentos")
     private Usuario usuario;
 
     public Rendimento() {
@@ -27,27 +27,10 @@ public class Rendimento {
     }
 
     // Getters e Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Double getValor() {
-        return valor;
-    }
-
-    public void setValor(Double valor) {
-        this.valor = valor;
-    }
-
-    public Usuario getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(Usuario usuario) {
-        this.usuario = usuario;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public Double getValor() { return valor; }
+    public void setValor(Double valor) { this.valor = valor; }
+    public Usuario getUsuario() { return usuario; }
+    public void setUsuario(Usuario usuario) { this.usuario = usuario; }
 }

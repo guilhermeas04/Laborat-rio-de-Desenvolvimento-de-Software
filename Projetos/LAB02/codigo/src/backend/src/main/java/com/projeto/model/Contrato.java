@@ -21,14 +21,18 @@ public class Contrato {
     private Pedido pedido;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_contrato") // Adição da anotação para mapear a coluna
+
     private TipoContrato tipoContrato;
 
     private Double valor;
     
     @Temporal(TemporalType.DATE)
+    @Column(name = "data_inicio")
     private Date dataInicio;
-    
+
     @Temporal(TemporalType.DATE)
+    @Column(name = "data_fim")
     private Date dataFim;
 
     @ManyToOne

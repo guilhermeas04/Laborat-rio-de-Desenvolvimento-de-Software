@@ -25,7 +25,7 @@ public class Automovel {
 
     // Relacionamento ManyToOne: Um usuário (proprietário) pode ter muitos carros.
     @ManyToOne
-    @JoinColumn(name = "proprietario")
+    @JoinColumn(name = "proprietario_id")
     @JsonBackReference("user-automoveis") // This is the key fix
     private Usuario proprietario;
 

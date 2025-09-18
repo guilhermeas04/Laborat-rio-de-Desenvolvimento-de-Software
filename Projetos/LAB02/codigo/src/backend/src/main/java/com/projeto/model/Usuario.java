@@ -27,18 +27,20 @@ public class Usuario {
     private String senha;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipousuario")
+    @Column(name = "tipo_usuario")
     private TipoUsuario tipoUsuario;
 
-      // Relacionamento com Rendimentos
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("user-rendimentos")
     private List<Rendimento> rendimentos;
 
-    // Relacionamento com Automoveis
     @OneToMany(mappedBy = "proprietario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("user-automoveis")
     private List<Automovel> automoveis;
+
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("user-pedidos")
+    private List<Pedido> pedidos;
 
     public Usuario() {
     }
@@ -53,7 +55,7 @@ public class Usuario {
         this.tipoUsuario = tipoUsuario;
     }
 
-    // Getters and Setters
+    // Getters e Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
@@ -74,6 +76,8 @@ public class Usuario {
     public void setRendimentos(List<Rendimento> rendimentos) { this.rendimentos = rendimentos; }
     public List<Automovel> getAutomoveis() { return automoveis; }
     public void setAutomoveis(List<Automovel> automoveis) { this.automoveis = automoveis; }
+    public List<Pedido> getPedidos() { return pedidos; }
+    public void setPedidos(List<Pedido> pedidos) { this.pedidos = pedidos; }
 
     @Override
     public String toString() {

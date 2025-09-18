@@ -16,8 +16,13 @@ public class Credito {
     @JsonBackReference("agente-creditos") // This is the key fix
     private Agente banco;
 
+    @Column(name = "valor_aprovado")
     private Double valorAprovado;
+
+    @Column(name = "prazo_pagamento")
     private Integer prazoPagamento;
+
+    @Column(name = "taxa_juros")
     private Double taxaJuros;
 
     public Credito() {
