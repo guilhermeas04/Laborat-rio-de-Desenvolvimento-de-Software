@@ -1,4 +1,4 @@
-package backend.src.main.java.com.projeto.model;
+package com.projeto.model;
 
 public class Usuario {
     

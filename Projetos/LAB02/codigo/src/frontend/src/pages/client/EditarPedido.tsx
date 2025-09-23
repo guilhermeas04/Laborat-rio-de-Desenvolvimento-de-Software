@@ -1,0 +1,78 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Navbar from "@/components/layout/Navbar";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { apiGet, apiPut, type Pedido } from "@/lib/api";
+
+const EditarPedido = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [pedido, setPedido] = useState<Pedido | null>(null);
+  const [car, setCar] = useState("");
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        if (id) {
+          const p = await apiGet<Pedido>(`/api/client/pedidos/${id}`);
+          setPedido(p);
+          setCar(p.car);
+          setDataInicio(p.date);
+        }
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar userType="client" onLogout={() => navigate("/")} />
+      <div className="max-w-xl mx-auto p-6">
+        <Button variant="outline" onClick={() => navigate("/client")} className="mb-4">
+          &larr; Voltar
+        </Button>
+        <Card>
+          <CardHeader>
+            <CardTitle>Editar Pedido: {id}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form
+              className="space-y-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                if (!id) return;
+                await apiPut<Pedido>(`/api/client/pedidos/${id}`, {
+                  car,
+                  date: dataInicio,
+                  value: pedido?.value,
+                });
+                navigate(`/client/pedido/${id}`);
+              }}
+            >
+              <div>
+                <label className="block font-medium mb-1">Carro desejado</label>
+                <input className="w-full border p-2 rounded" value={car} onChange={(e)=>setCar(e.target.value)} disabled={loading} />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Data de início</label>
+                <input className="w-full border p-2 rounded" type="date" value={dataInicio} onChange={(e)=>setDataInicio(e.target.value)} disabled={loading} />
+              </div>
+              <div>
+                <label className="block font-medium mb-1">Data de fim</label>
+                <input className="w-full border p-2 rounded" type="date" value={dataFim} onChange={(e)=>setDataFim(e.target.value)} disabled={loading} />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>Salvar Alterações</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default EditarPedido;

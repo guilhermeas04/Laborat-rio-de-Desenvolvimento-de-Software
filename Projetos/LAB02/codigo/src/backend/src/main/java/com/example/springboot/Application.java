@@ -1,4 +1,4 @@
-package backend.src.main.java.com.example.springboot;
+package com.example.springboot;
 
 import java.util.Arrays;
 
