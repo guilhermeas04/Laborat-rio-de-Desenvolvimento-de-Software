@@ -4,42 +4,32 @@ import StatusBadge from "@/components/ui/status-badge";
 import Navbar from "@/components/layout/Navbar";
 import { Users, Clock, CheckCircle, Car, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useMemo, useState } from "react";
-import { apiGet, type Pedido, type Veiculo } from "@/lib/api";
+import { useMemo } from "react";
+import { PedidosApi, AutomoveisApi, QueryKeys } from "@/lib/api";
+import { useQuery } from '@tanstack/react-query';
 
 const AgentDashboard = () => {
   const navigate = useNavigate();
 
-  const [pendingOrders, setPendingOrders] = useState<Pedido[]>([]);
-  const [orders, setOrders] = useState<Pedido[]>([]);
-  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    (async () => {
-      try {
-        const [pend, all, veics] = await Promise.all([
-          apiGet<Pedido[]>("/api/agent/pedidos/pendentes"),
-          apiGet<Pedido[]>("/api/client/pedidos"),
-          apiGet<Veiculo[]>("/api/agent/veiculos"),
-        ]);
-        setPendingOrders(pend);
-        setOrders(all);
-        setVeiculos(veics);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const { data: pedidos, isLoading: loadingPedidos } = useQuery({
+    queryKey: QueryKeys.pedidos,
+    queryFn: PedidosApi.listar
+  });
+  const { data: veiculos, isLoading: loadingVeiculos } = useQuery({
+    queryKey: QueryKeys.automoveis,
+    queryFn: AutomoveisApi.listar
+  });
+  const pendingOrders = useMemo(() => (pedidos || []).filter(p => p.status === 'PENDENTE'), [pedidos]);
+  const orders = pedidos || [];
+  const loading = loadingPedidos || loadingVeiculos;
 
   const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
   const pendingCount = pendingOrders.length;
   const approvedToday = orders.filter(
-    (o) => o.status === "aprovado" && o.date === todayStr
+    (o) => o.status === "APROVADO" && o.data === todayStr
   ).length;
-  const contratosAtivos = orders.filter((o) => o.status === "ativo").length;
-  const veiculosDisponiveis = veiculos.length;
+  const contratosAtivos = orders.filter((o) => o.status === "APROVADO").length; // até existir distinção
+  const veiculosDisponiveis = (veiculos || []).length;
 
   const stats = [
     { title: "Pedidos Pendentes", value: String(pendingCount), icon: Clock, color: "text-warning" },
@@ -55,7 +45,7 @@ const AgentDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar userType="agent" onLogout={handleLogout} />
-      
+
       <div className="max-w-7xl mx-auto p-6">
         <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
@@ -132,14 +122,12 @@ const AgentDashboard = () => {
                         <Users className="h-10 w-10 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">{(order as any).clientName ?? "Cliente"}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {order.car} • {order.date}
-                        </p>
+                        <p className="font-medium">{order.clienteNome || 'Cliente'}</p>
+                        <p className="text-sm text-muted-foreground">{order.automovelLabel || 'Automóvel'} • {order.data || '-'}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <StatusBadge status="pendente" />
+                      <StatusBadge status={order.status} />
                       {/* Valor removido pois não existe no schema oficial */}
                     </div>
                   </div>

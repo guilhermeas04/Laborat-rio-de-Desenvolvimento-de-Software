@@ -7,9 +7,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Car, User, Building } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { registerCliente, registerAgente } from "../lib/api";
+import { useAuth } from '@/context/AuthContext';
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [clientData, setClientData] = useState({
     name: "",
     password: "",
@@ -29,17 +32,75 @@ const Register = () => {
     address: "",
     cpfResponsavel: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleClientSubmit = (e: React.FormEvent) => {
+  const handleClientSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Cadastro de cliente realizado com sucesso!");
-    navigate("/login");
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const renda = parseFloat(clientData.income.replace(/[^0-9,.]/g, '').replace(',', '.'));
+      const novo = await registerCliente({
+        nome: clientData.name,
+        cpf: clientData.cpf,
+        rg: clientData.rg,
+        endereco: clientData.address,
+        profissao: clientData.profession,
+        senha: clientData.password,
+        empregador: clientData.employer,
+        rendaMensal: isNaN(renda) ? undefined : renda
+      });
+      toast.success("Cadastro de cliente realizado! Entrando...");
+      try {
+        await login(clientData.cpf, clientData.password);
+        navigate('/client', { replace: true });
+      } catch {
+        navigate('/login');
+      }
+    } catch (err: any) {
+      if (err?.status === 409) {
+        toast.error('CPF já cadastrado. Tente fazer login.');
+      } else if (err?.status === 400) {
+        toast.error('Dados inválidos. Verifique CPF (11 dígitos) e campos obrigatórios.');
+      } else {
+        toast.error(err.message || 'Falha ao cadastrar cliente');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleAgentSubmit = (e: React.FormEvent) => {
+  const handleAgentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success("Cadastro de agente realizado com sucesso!");
-    navigate("/login");
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      const tipoAgente = /banco/i.test(agentData.companyName) ? 'Banco' : 'Empresa';
+      const novoAgente = await registerAgente({
+        nomeAgente: agentData.companyName,
+        cpfResponsavel: agentData.cpfResponsavel || agentData.cnpj, // fallback
+        senha: agentData.password,
+        endereco: agentData.address,
+        tipoAgente: tipoAgente as any
+      });
+      toast.success("Cadastro de agente realizado! Entrando...");
+      try {
+        await login(agentData.cpfResponsavel || agentData.cnpj, agentData.password);
+        navigate('/agent', { replace: true });
+      } catch {
+        navigate('/login');
+      }
+    } catch (err: any) {
+      if (err?.status === 409) {
+        toast.error('CPF do responsável já cadastrado. Use outro ou faça login.');
+      } else if (err?.status === 400) {
+        toast.error('Dados inválidos. Verifique CPF e campos obrigatórios.');
+      } else {
+        toast.error(err.message || 'Falha ao cadastrar agente');
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -94,9 +155,10 @@ const Register = () => {
                         id="client-cpf"
                         placeholder="000.000.000-00"
                         value={clientData.cpf}
-                        onChange={(e) =>
-                          setClientData({ ...clientData, cpf: e.target.value })
-                        }
+                        onChange={(e) => {
+                          const onlyDigits = e.target.value.replace(/\D/g, '').slice(0, 11);
+                          setClientData({ ...clientData, cpf: onlyDigits });
+                        }}
                         required
                       />
                     </div>
@@ -165,9 +227,7 @@ const Register = () => {
                         id="client-income"
                         placeholder="R$ 0,00"
                         value={clientData.income}
-                        onChange={(e) =>
-                          setClientData({ ...clientData, income: e.target.value })
-                        }
+                        onChange={(e) => setClientData({ ...clientData, income: e.target.value })}
                         required
                       />
                     </div>
@@ -186,7 +246,7 @@ const Register = () => {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={submitting || clientData.cpf.replace(/\D/g, '').length !== 11}>
                     Cadastrar Cliente
                   </Button>
                 </form>
@@ -213,9 +273,7 @@ const Register = () => {
                         id="agent-cnpj"
                         placeholder="00.000.000/0000-00"
                         value={agentData.cnpj}
-                        onChange={(e) =>
-                          setAgentData({ ...agentData, cnpj: e.target.value })
-                        }
+                        onChange={(e) => setAgentData({ ...agentData, cnpj: e.target.value })}
                         required
                       />
                     </div>
@@ -228,9 +286,7 @@ const Register = () => {
                         id="agent-cnpj"
                         placeholder="00.000.000/0000-00"
                         value={agentData.cnpj}
-                        onChange={(e) =>
-                          setAgentData({ ...agentData, cnpj: e.target.value })
-                        }
+                        onChange={(e) => setAgentData({ ...agentData, cnpj: e.target.value })}
                         required
                       />
                     </div>
@@ -240,9 +296,7 @@ const Register = () => {
                         id="agent-contact"
                         placeholder="(11) 99999-9999"
                         value={agentData.contact}
-                        onChange={(e) =>
-                          setAgentData({ ...agentData, contact: e.target.value })
-                        }
+                        onChange={(e) => setAgentData({ ...agentData, contact: e.target.value })}
                         required
                       />
                     </div>
@@ -254,9 +308,7 @@ const Register = () => {
                       id="agent-address"
                       placeholder="Endereço completo da empresa"
                       value={agentData.address}
-                      onChange={(e) =>
-                        setAgentData({ ...agentData, address: e.target.value })
-                      }
+                      onChange={(e) => setAgentData({ ...agentData, address: e.target.value })}
                       required
                     />
                   </div>
@@ -268,9 +320,10 @@ const Register = () => {
                         id="agent-cpf-resp"
                         placeholder="000.000.000-00"
                         value={agentData.cpfResponsavel}
-                        onChange={(e) =>
-                          setAgentData({ ...agentData, cpfResponsavel: e.target.value })
-                        }
+                        onChange={(e) => {
+                          const onlyDigits = e.target.value.replace(/\D/g, '').slice(0, 11);
+                          setAgentData({ ...agentData, cpfResponsavel: onlyDigits });
+                        }}
                         required
                       />
                     </div>
@@ -281,15 +334,13 @@ const Register = () => {
                         type="password"
                         placeholder="Digite uma senha"
                         value={agentData.password}
-                        onChange={(e) =>
-                          setAgentData({ ...agentData, password: e.target.value })
-                        }
+                        onChange={(e) => setAgentData({ ...agentData, password: e.target.value })}
                         required
                       />
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full" disabled={submitting || agentData.cpfResponsavel.replace(/\D/g, '').length !== 11}>
                     Cadastrar Agente
                   </Button>
                 </form>

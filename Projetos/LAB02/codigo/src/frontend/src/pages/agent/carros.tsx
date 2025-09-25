@@ -2,25 +2,15 @@ import Navbar from "@/components/layout/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { apiGet, type Veiculo } from "@/lib/api";
+import { AutomoveisApi, QueryKeys, type Automovel } from "@/lib/api";
+import { useQuery } from '@tanstack/react-query';
 
 const Carros = () => {
   const navigate = useNavigate();
-  const [carros, setCarros] = useState<Veiculo[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await apiGet<Veiculo[]>("/api/agent/veiculos");
-        setCarros(data);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const { data: carros, isLoading: loading } = useQuery({
+    queryKey: QueryKeys.automoveis,
+    queryFn: AutomoveisApi.listar
+  });
   return (
     <div className="min-h-screen bg-background">
       <Navbar userType="agent" onLogout={() => navigate("/")} />
@@ -35,14 +25,14 @@ const Carros = () => {
           </CardHeader>
           <CardContent>
             {loading && <p className="text-sm text-muted-foreground">Carregando...</p>}
-            {!loading && carros.length === 0 && (
+            {!loading && (carros?.length || 0) === 0 && (
               <p className="text-sm text-muted-foreground">Nenhum veículo cadastrado.</p>
             )}
-            {!loading && carros.length > 0 && (
+            {!loading && (carros?.length || 0) > 0 && (
               <ul className="space-y-4">
-                {carros.map((carro) => (
+                {(carros as Automovel[]).map((carro) => (
                   <li key={carro.id} className="flex justify-between items-center border-b pb-2">
-                    <span>{carro.modelo} • {carro.placa} • {carro.ano}</span>
+                    <span>{(carro.marca || '') + ' ' + (carro.modelo || '')} • {carro.placa} • {carro.ano || '—'}</span>
                     <Button size="sm">Editar</Button>
                   </li>
                 ))}

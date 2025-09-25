@@ -1,0 +1,354 @@
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### ----------------------------
+### USUARIOS
+### ----------------------------
+# Criar Usuario (Cliente)
+POST {{baseUrl}}/usuarios
+Content-Type: {{contentType}}
+
+{
+  "nome": "Cliente Teste",
+  "cpf": "11122233344",
+  "rg": "MG-123",
+  "endereco": "Rua A, 100",
+  "profissao": "Dev",
+  "senha": "123456",
+  "tipoUsuario": "Cliente"
+}
+
+### Listar Usuarios
+GET {{baseUrl}}/usuarios
+
+### Buscar Usuario por ID
+# Substitua 1 pelo ID retornado na criação
+GET {{baseUrl}}/usuarios/1
+
+### Atualizar Usuario
+PUT {{baseUrl}}/usuarios/1
+Content-Type: {{contentType}}
+
+{
+  "nome": "Cliente Teste Atualizado",
+  "cpf": "11122233344",
+  "rg": "MG-123",
+  "endereco": "Rua A, 200",
+  "profissao": "Desenvolvedor Senior",
+  "senha": "123456",
+  "tipoUsuario": "Cliente"
+}
+
+### Login
+POST {{baseUrl}}/usuarios/login
+Content-Type: {{contentType}}
+
+{
+  "cpf": "11122233344",
+  "senha": "123456"
+}
+
+### Adicionar Rendimento a Usuario
+POST {{baseUrl}}/usuarios/1/rendimentos
+Content-Type: {{contentType}}
+
+{
+  "empregador": "Empresa X",
+  "valor": 5000.0
+}
+
+### Deletar Usuario
+# (Use somente se quiser limpar - removerá o usuário e pode impactar outros testes)
+# DELETE {{baseUrl}}/usuarios/1
+
+
+### ----------------------------
+### AUTOMOVEIS
+### ----------------------------
+# Criar Automovel (proprietario = usuario id 1)
+POST {{baseUrl}}/automoveis
+Content-Type: {{contentType}}
+
+{
+  "placa": "XYZ-9876",
+  "matricula": "MAT-9876",
+  "marca": "Ford",
+  "modelo": "Fiesta",
+  "ano": 2020,
+  "proprietario": {"id": 1}
+}
+
+### Listar Automoveis
+GET {{baseUrl}}/automoveis
+
+### Buscar Automovel por ID
+GET {{baseUrl}}/automoveis/1
+
+### Atualizar Automovel
+PUT {{baseUrl}}/automoveis/1
+Content-Type: {{contentType}}
+
+{
+  "placa": "XYZ-9876",
+  "matricula": "MAT-9876",
+  "marca": "Ford",
+  "modelo": "Fiesta Titanium",
+  "ano": 2021,
+  "proprietario": {"id": 1}
+}
+
+### Deletar Automovel
+# DELETE {{baseUrl}}/automoveis/1
+
+
+### ----------------------------
+### AGENTES
+### ----------------------------
+# Criar Agente (tipoUsuario = Agente)
+POST {{baseUrl}}/agentes
+Content-Type: {{contentType}}
+
+{
+  "nome": "Joao Agente",
+  "cpf": "55566677788",
+  "rg": "SP-999",
+  "endereco": "Av Central 500",
+  "profissao": "Analista",
+  "senha": "123456",
+  "tipoUsuario": "Agente",
+  "nomeAgente": "Banco Bom",
+  "tipoAgente": "Banco"
+}
+
+### Listar Agentes
+GET {{baseUrl}}/agentes
+
+### Buscar Agente por ID
+GET {{baseUrl}}/agentes/2
+
+### Atualizar Agente
+PUT {{baseUrl}}/agentes/2
+Content-Type: {{contentType}}
+
+{
+  "nome": "Joao Agente Premium",
+  "cpf": "55566677788",
+  "rg": "SP-999",
+  "endereco": "Av Central 600",
+  "profissao": "Consultor",
+  "senha": "123456",
+  "tipoUsuario": "Agente",
+  "nomeAgente": "Banco Bom",
+  "tipoAgente": "Banco"
+}
+
+### Deletar Agente
+# DELETE {{baseUrl}}/agentes/2
+
+
+### ----------------------------
+### RENDIMENTOS (direto pelo controller dedicado)
+### ----------------------------
+# Criar Rendimento
+POST {{baseUrl}}/rendimentos
+Content-Type: {{contentType}}
+
+{
+  "empregador": "Empresa Y",
+  "valor": 7200.00,
+  "usuario": {"id": 1}
+}
+
+### Listar Rendimentos
+GET {{baseUrl}}/rendimentos
+
+### Buscar Rendimento por ID
+GET {{baseUrl}}/rendimentos/1
+
+### Atualizar Rendimento
+PUT {{baseUrl}}/rendimentos/1
+Content-Type: {{contentType}}
+
+{
+  "empregador": "Empresa Y",
+  "valor": 7500.00,
+  "usuario": {"id": 1}
+}
+
+### Deletar Rendimento
+# DELETE {{baseUrl}}/rendimentos/1
+
+
+### ----------------------------
+### ENTIDADES EMPREGADORAS
+### ----------------------------
+# Criar Entidade Empregadora
+POST {{baseUrl}}/entidades-empregadoras
+Content-Type: {{contentType}}
+
+{
+  "nome": "Empresa Mega"
+}
+
+### Listar Entidades
+GET {{baseUrl}}/entidades-empregadoras
+
+### Buscar Entidade por ID
+GET {{baseUrl}}/entidades-empregadoras/1
+
+### Atualizar Entidade
+PUT {{baseUrl}}/entidades-empregadoras/1
+Content-Type: {{contentType}}
+
+{
+  "nome": "Empresa Mega Atualizada"
+}
+
+### Deletar Entidade
+# DELETE {{baseUrl}}/entidades-empregadoras/1
+
+
+### ----------------------------
+### PEDIDOS
+### ----------------------------
+# Criar Pedido (cliente id=1, automovel id=1) - status aceita "PENDENTE" ou deixa sem
+POST {{baseUrl}}/pedidos
+Content-Type: {{contentType}}
+
+{
+  "status": "PENDENTE",
+  "cliente": {"id": 1},
+  "automovel": {"id": 1}
+}
+
+### Listar Pedidos
+GET {{baseUrl}}/pedidos
+
+### Buscar Pedido por ID
+GET {{baseUrl}}/pedidos/1
+
+### Atualizar Pedido
+PUT {{baseUrl}}/pedidos/1
+Content-Type: {{contentType}}
+
+{
+  "status": "APROVADO",
+  "cliente": {"id": 1},
+  "automovel": {"id": 1}
+}
+
+### Deletar Pedido
+# DELETE {{baseUrl}}/pedidos/1
+
+
+### ----------------------------
+### CONTRATOS
+### ----------------------------
+# Criar Contrato (necessita automovel e pedido existentes) *Ajuste IDs conforme criado*
+POST {{baseUrl}}/contratos
+Content-Type: {{contentType}}
+
+{
+  "valor": 12000.50,
+  "tipoContrato": "Cliente",
+  "dataInicio": "2025-01-10",
+  "dataFim": "2025-12-10",
+  "automovel": {"id": 1},
+  "pedido": {"id": 1}
+}
+
+### Listar Contratos
+GET {{baseUrl}}/contratos
+
+### Buscar Contrato por ID
+GET {{baseUrl}}/contratos/1
+
+### Atualizar Contrato
+PUT {{baseUrl}}/contratos/1
+Content-Type: {{contentType}}
+
+{
+  "valor": 13500.00,
+  "tipoContrato": "Cliente",
+  "dataInicio": "2025-01-10",
+  "dataFim": "2025-12-31",
+  "automovel": {"id": 1},
+  "pedido": {"id": 1}
+}
+
+### Deletar Contrato
+# DELETE {{baseUrl}}/contratos/1
+
+
+### ----------------------------
+### CREDITOS
+### ----------------------------
+# Criar Crédito (banco = agente id 2)
+POST {{baseUrl}}/creditos
+Content-Type: {{contentType}}
+
+{
+  "valorAprovado": 50000.0,
+  "taxaJuros": 1.8,
+  "prazoPagamento": 24,
+  "banco": {"id": 2}
+}
+
+### Listar Creditos
+GET {{baseUrl}}/creditos
+
+### Buscar Credito por ID
+GET {{baseUrl}}/creditos/1
+
+### Atualizar Credito
+PUT {{baseUrl}}/creditos/1
+Content-Type: {{contentType}}
+
+{
+  "valorAprovado": 60000.0,
+  "taxaJuros": 1.7,
+  "prazoPagamento": 30,
+  "banco": {"id": 2}
+}
+
+### Deletar Credito
+# DELETE {{baseUrl}}/creditos/1
+
+
+### ----------------------------
+### OBSERVACOES
+### ----------------------------
+# 1. Execute o backend com perfil dev:
+#    ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+# 2. Use este arquivo com a extensão REST Client do VS Code (humao.rest-client) ou semelhante.
+# 3. Ajuste os IDs conforme as respostas retornadas em cada criação.
+# 4. Para testar DELETE sem quebrar cadeia de dependências, faça após ter criado recursos novos.
+# 5. Campos de datas no contrato devem estar em formato ISO (yyyy-MM-dd). Se der erro, confirme o mapeamento do modelo.
+
+### ----------------------------
+### CENARIOS NEGATIVOS / ERRO
+### ----------------------------
+### Login com senha errada (espera 400)
+# POST {{baseUrl}}/usuarios/login
+# Content-Type: {{contentType}}
+#
+# {
+#   "cpf": "11122233344",
+#   "senha": "senhaErrada"
+# }
+
+### 4º rendimento excedendo limite (espera 400) - após já ter criado 3 via /usuarios/{id}/rendimentos
+# POST {{baseUrl}}/usuarios/1/rendimentos
+# Content-Type: {{contentType}}
+#
+# {
+#   "empregador": "Empresa Limite",
+#   "valor": 9999.0
+# }
+
+### GET recurso inexistente (espera 404)
+# GET {{baseUrl}}/usuarios/999999
+
+### DELETE seguido de GET (espera 404 na segunda)
+# DELETE {{baseUrl}}/automoveis/1
+# GET {{baseUrl}}/automoveis/1

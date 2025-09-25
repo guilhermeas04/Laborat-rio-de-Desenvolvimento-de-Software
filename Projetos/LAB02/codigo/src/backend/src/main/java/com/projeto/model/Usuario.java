@@ -1,5 +1,104 @@
 package com.projeto.model;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
+@Entity
+@Table(name = "usuario")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Usuario {
+    public enum TipoUsuario {
+        Cliente,
+        Agente
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String nome;
     
+    @Column(unique = true)
+    private String cpf;
+    
+    private String rg;
+    private String endereco;
+    private String profissao;
+    private String senha;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_usuario")
+    private TipoUsuario tipoUsuario;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore // evita recursão; Rendimento.usuario será serializado normalmente
+    private List<Rendimento> rendimentos;
+
+    @OneToMany(mappedBy = "proprietario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Automovel> automoveis;
+
+    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Pedido> pedidos;
+
+    public Usuario() {
+    }
+
+    public Usuario(String nome, String cpf, String rg, String endereco, String profissao, String senha, TipoUsuario tipoUsuario) {
+        this.nome = nome;
+        this.cpf = cpf;
+        this.rg = rg;
+        this.endereco = endereco;
+        this.profissao = profissao;
+        this.senha = senha;
+        this.tipoUsuario = tipoUsuario;
+    }
+
+    // Getters e Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getNome() { return nome; }
+    public void setNome(String nome) { this.nome = nome; }
+    public String getCpf() { return cpf; }
+    public void setCpf(String cpf) { this.cpf = cpf; }
+    public String getRg() { return rg; }
+    public void setRg(String rg) { this.rg = rg; }
+    public String getEndereco() { return endereco; }
+    public void setEndereco(String endereco) { this.endereco = endereco; }
+    public String getProfissao() { return profissao; }
+    public void setProfissao(String profissao) { this.profissao = profissao; }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
+    public TipoUsuario getTipoUsuario() { return tipoUsuario; }
+    public void setTipoUsuario(TipoUsuario tipoUsuario) { this.tipoUsuario = tipoUsuario; }
+    public List<Rendimento> getRendimentos() { return rendimentos; }
+    public void setRendimentos(List<Rendimento> rendimentos) { this.rendimentos = rendimentos; }
+    public List<Automovel> getAutomoveis() { return automoveis; }
+    public void setAutomoveis(List<Automovel> automoveis) { this.automoveis = automoveis; }
+    public List<Pedido> getPedidos() { return pedidos; }
+    public void setPedidos(List<Pedido> pedidos) { this.pedidos = pedidos; }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id=" + id +
+                ", nome='" + nome + '\'' +
+                ", cpf='" + cpf + '\'' +
+                ", tipoUsuario=" + tipoUsuario +
+                '}';
+    }
 }
