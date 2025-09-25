@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Car, LogOut } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from '@/context/AuthContext';
 
 interface NavbarProps {
   userType?: "client" | "agent" | null;
@@ -10,6 +11,7 @@ interface NavbarProps {
 const Navbar = ({ userType, onLogout }: NavbarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout: authLogout } = useAuth();
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -34,7 +36,7 @@ const Navbar = ({ userType, onLogout }: NavbarProps) => {
                 >
                   Dashboard
                 </Button>
-                
+
                 {userType === "client" && (
                   <>
                     <Button
@@ -51,10 +53,20 @@ const Navbar = ({ userType, onLogout }: NavbarProps) => {
 
                 <Button
                   variant="ghost"
-                  onClick={onLogout}
+                  onClick={() => {
+                    // Limpa estado de autenticação e depois executa callback externo (ex: navegar)
+                    authLogout();
+                    if (onLogout) {
+                      onLogout();
+                    } else {
+                      navigate('/login');
+                    }
+                  }}
                   size="sm"
+                  aria-label="Sair"
                 >
-                  <LogOut className="h-4 w-4" />
+                  <LogOut className="h-4 w-4 mr-1" />
+                  <span className="hidden sm:inline">Sair</span>
                 </Button>
               </>
             )}

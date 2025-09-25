@@ -1,8 +1,21 @@
 package com.projeto.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usuario")
@@ -31,15 +44,15 @@ public class Usuario {
     private TipoUsuario tipoUsuario;
 
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("user-rendimentos")
+    @JsonIgnore // evita recursão; Rendimento.usuario será serializado normalmente
     private List<Rendimento> rendimentos;
 
     @OneToMany(mappedBy = "proprietario", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("user-automoveis")
+    @JsonIgnore
     private List<Automovel> automoveis;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("user-pedidos")
+    @JsonIgnore
     private List<Pedido> pedidos;
 
     public Usuario() {

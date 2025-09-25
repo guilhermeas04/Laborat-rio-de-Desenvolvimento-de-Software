@@ -1,7 +1,6 @@
 package com.projeto.model;
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -64,13 +63,11 @@ public class Pedido {
     
     @ManyToOne
     @JoinColumn(name = "cliente_id")
-    @JsonBackReference("user-pedidos")
-    private Usuario cliente;
+    private Usuario cliente; // removido JsonBackReference para serializar cliente no retorno
     
     @ManyToOne
     @JoinColumn(name = "automovel_id")
-    @JsonBackReference("automovel-pedidos")
-    private Automovel automovel;
+    private Automovel automovel; // removido JsonBackReference para serializar automovel
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

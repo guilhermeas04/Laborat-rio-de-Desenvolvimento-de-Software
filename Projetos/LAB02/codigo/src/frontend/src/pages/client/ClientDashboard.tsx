@@ -4,35 +4,40 @@ import StatusBadge from "@/components/ui/status-badge";
 import Navbar from "@/components/layout/Navbar";
 import { Plus, Car, Clock, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { apiDelete, apiGet, type Pedido } from "@/lib/api";
+import { useMemo } from "react";
+import { PedidosApi, QueryKeys } from "@/lib/api";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/context/AuthContext';
 
 const ClientDashboard = () => {
   const navigate = useNavigate();
 
-  const [orders, setOrders] = useState<Pedido[]>([]);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    (async () => {
-      try {
-        const data = await apiGet<Pedido[]>("/api/client/pedidos");
-        setOrders(data);
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+  const { usuario } = useAuth();
+  const clienteId = usuario?.id;
 
-  const activeCount = orders.filter((o) => o.status === "ativo").length;
-  const pendingCount = orders.filter((o) => o.status === "pendente").length;
-  const approvedCount = orders.filter((o) => o.status === "aprovado").length;
+  const { data: pedidos, isLoading } = useQuery({
+    queryKey: clienteId ? QueryKeys.pedidosCliente(clienteId) : QueryKeys.pedidos,
+    queryFn: () => clienteId ? PedidosApi.listarPorCliente(clienteId) : PedidosApi.listar(),
+    enabled: !!clienteId
+  });
+
+  const qc = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => PedidosApi.deletar(id),
+    onSuccess: () => {
+      if (clienteId) qc.invalidateQueries({ queryKey: QueryKeys.pedidosCliente(clienteId) });
+      qc.invalidateQueries({ queryKey: QueryKeys.pedidos });
+    }
+  });
+
+  const activeCount = useMemo(() => (pedidos || []).filter((o) => o.status === "APROVADO" /* ou ATIVO futuro */).length, [pedidos]);
+  const pendingCount = useMemo(() => (pedidos || []).filter((o) => o.status === "PENDENTE").length, [pedidos]);
+  const approvedCount = activeCount; // simplificado até existir distinção de ATIVO
   const stats = [
     { title: "Pedidos Ativos", value: String(activeCount), icon: Car, color: "text-success" },
     { title: "Pendentes", value: String(pendingCount), icon: Clock, color: "text-warning" },
     { title: "Aprovados", value: String(approvedCount), icon: CheckCircle, color: "text-info" },
-    { title: "Total de Pedidos", value: String(orders.length), icon: Car, color: "text-foreground" },
+    { title: "Total de Pedidos", value: String(pedidos?.length || 0), icon: Car, color: "text-foreground" },
   ];
 
   const handleLogout = () => {
@@ -42,7 +47,7 @@ const ClientDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar userType="client" onLogout={handleLogout} />
-      
+
       <div className="max-w-7xl mx-auto p-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -86,11 +91,11 @@ const ClientDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {loading && <p className="text-sm text-muted-foreground">Carregando pedidos...</p>}
-                {!loading && orders.length === 0 && (
+                {isLoading && <p className="text-sm text-muted-foreground">Carregando pedidos...</p>}
+                {!isLoading && (pedidos?.length || 0) === 0 && (
                   <p className="text-sm text-muted-foreground">Você ainda não possui pedidos.</p>
                 )}
-                {orders.map((order) => (
+                {(pedidos || []).map((order) => (
                   <div
                     key={order.id}
                     className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors"
@@ -100,10 +105,8 @@ const ClientDashboard = () => {
                         <Car className="h-10 w-10 text-primary" />
                       </div>
                       <div>
-                        <p className="font-medium">{order.car}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Pedido {order.id} • {order.date}
-                        </p>
+                        <p className="font-medium">{order.automovelLabel || 'Automóvel'}</p>
+                        <p className="text-sm text-muted-foreground">Pedido {order.id} • {order.data || '-'}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -120,8 +123,7 @@ const ClientDashboard = () => {
                           const ok = window.confirm(`Tem certeza que deseja excluir o pedido ${order.id}?`);
                           if (!ok) return;
                           try {
-                            await apiDelete(`/api/client/pedidos/${order.id}`);
-                            setOrders((prev) => prev.filter((p) => p.id !== order.id));
+                            await deleteMutation.mutateAsync(order.id);
                           } catch (e) {
                             alert("Falha ao excluir");
                           }

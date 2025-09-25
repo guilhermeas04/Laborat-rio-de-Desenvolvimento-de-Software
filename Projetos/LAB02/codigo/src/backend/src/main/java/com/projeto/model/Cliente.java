@@ -1,6 +1,6 @@
 package com.projeto.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class Cliente extends Usuario {
         joinColumns = @JoinColumn(name = "idcliente"),
         inverseJoinColumns = @JoinColumn(name = "identidade")
     )
-    @JsonManagedReference("cliente-empregadoras")
+    @JsonIgnore // Evita recursão e problemas de desserialização para testes e APIs simples
     private List<EntidadeEmpregadora> empregadoras;
 
     public Cliente() {

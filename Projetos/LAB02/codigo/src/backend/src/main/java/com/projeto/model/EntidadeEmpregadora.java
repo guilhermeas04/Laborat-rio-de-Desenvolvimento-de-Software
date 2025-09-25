@@ -1,6 +1,6 @@
 package com.projeto.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class EntidadeEmpregadora {
     private String nome;
 
     @ManyToMany(mappedBy = "empregadoras")
-    @JsonBackReference("cliente-empregadoras")
+    @JsonIgnore // Evita serialização recursiva
     private List<Cliente> clientes;
 
     public EntidadeEmpregadora() {

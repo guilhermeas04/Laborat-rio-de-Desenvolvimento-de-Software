@@ -4,10 +4,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.projeto.model.Automovel;
@@ -19,6 +22,8 @@ import com.projeto.repository.UsuarioRepository;
 
 @Service
 public class PedidoService {
+
+    private static final Logger log = LoggerFactory.getLogger(PedidoService.class);
 
     @Autowired
     private PedidoRepository pedidoRepository;
@@ -32,10 +37,16 @@ public class PedidoService {
     @Autowired
     private Environment env;
 
+    @Transactional
     public Pedido salvar(Pedido pedido) {
         boolean isDev = java.util.Arrays.asList(env.getActiveProfiles()).contains("dev");
 
-        // Resolve cliente (FK) if only id was provided
+    log.debug("[PedidoService] Recebido para salvar: clienteId={}, automovelId={}, status={}, data={}",
+        pedido.getCliente()!=null?pedido.getCliente().getId():null,
+        pedido.getAutomovel()!=null?pedido.getAutomovel().getId():null,
+        pedido.getStatus(), pedido.getDataPedido());
+
+    // Resolve cliente (FK) if only id was provided
         if (pedido.getCliente() != null && pedido.getCliente().getId() != null) {
             Long clienteId = pedido.getCliente().getId();
             Usuario cliente = usuarioRepository.findById(clienteId).orElse(null);
@@ -82,11 +93,15 @@ public class PedidoService {
             pedido.setDataPedido(new Date());
         }
 
-        return pedidoRepository.save(pedido);
+        Pedido salvo = pedidoRepository.save(pedido);
+        log.debug("[PedidoService] Pedido salvo id={} status={} data={}", salvo.getId(), salvo.getStatus(), salvo.getDataPedido());
+        return salvo;
     }
 
     public List<Pedido> listarTodos() {
-        return pedidoRepository.findAll();
+        List<Pedido> todos = pedidoRepository.findAll();
+        log.debug("[PedidoService] listarTodos retornou {} registros", todos.size());
+        return todos;
     }
 
     public Optional<Pedido> buscarPorId(Long id) {

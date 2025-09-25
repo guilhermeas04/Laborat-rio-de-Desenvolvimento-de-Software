@@ -1,15 +1,26 @@
 package com.projeto.controller;
 
-import com.projeto.model.Usuario;
-import com.projeto.model.Rendimento;
-import com.projeto.service.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-import java.util.Optional;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.projeto.model.Rendimento;
+import com.projeto.model.Usuario;
+import com.projeto.service.UsuarioService;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -20,9 +31,33 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @PostMapping
-    public ResponseEntity<Usuario> criarUsuario(@RequestBody Usuario usuario) {
-        Usuario novoUsuario = usuarioService.salvar(usuario);
-        return ResponseEntity.ok(novoUsuario);
+    public ResponseEntity<?> criarUsuario(@RequestBody Usuario usuario) {
+        Map<String,Object> body = new HashMap<>();
+        if (usuario.getCpf() != null) {
+            usuario.setCpf(usuario.getCpf().replaceAll("\\D", ""));
+        }
+        if (usuario.getCpf() == null || usuario.getCpf().length() != 11) {
+            body.put("erro", "CPF inválido");
+            body.put("detalhe", "CPF deve conter 11 dígitos");
+            body.put("code", "CPF_INVALIDO");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+        }
+        try {
+            Usuario novoUsuario = usuarioService.salvar(usuario);
+            novoUsuario.setSenha(null);
+            return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
+        } catch (Exception e) {
+            String msg = e.getMessage() != null ? e.getMessage() : "Erro ao salvar usuário";
+            if (msg.toLowerCase().contains("cpf")) {
+                body.put("erro", "CPF já cadastrado");
+                body.put("code", "CPF_DUPLICADO");
+            } else {
+                body.put("erro", "Violação de integridade");
+                body.put("code", "INTEGRIDADE");
+            }
+            body.put("detalhe", msg);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        }
     }
 
     @GetMapping("/{id}")
@@ -55,7 +90,6 @@ public class UsuarioController {
         }
     }
 
-    // New Endpoint to add a Rendimento to a Usuario
     @PostMapping("/{usuarioId}/rendimentos")
     public ResponseEntity<Usuario> adicionarRendimento(@PathVariable Long usuarioId, @RequestBody Rendimento rendimento) {
         try {
@@ -66,26 +100,40 @@ public class UsuarioController {
                 return ResponseEntity.notFound().build();
             }
         } catch (IllegalStateException e) {
-            // This handles the business rule: a client cannot have more than 3 rendimentos.
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-    // Login endpoint
+    // Login endpoint (adicionando corpo de erro simples + normalização de CPF)
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(@RequestBody Map<String, String> loginData) {
         String cpf = loginData.get("cpf");
         String senha = loginData.get("senha");
-        
-        Optional<Usuario> usuario = usuarioService.buscarPorCpfESenha(cpf, senha);
-        
-        if (usuario.isPresent()) {
-            Map<String, Object> response = new HashMap<>();
-            response.put("usuario", usuario.get());
-            response.put("tipo", usuario.get().getTipoUsuario().toString());
-            return ResponseEntity.ok(response);
-        } else {
-            return ResponseEntity.badRequest().build();
+        if (cpf != null) cpf = cpf.replaceAll("\\D", "");
+
+        if (cpf == null || senha == null || cpf.length() != 11 || senha.isBlank()) {
+            Map<String,Object> err = new HashMap<>();
+            err.put("erro", "Credenciais inválidas");
+            err.put("detalhe", "CPF deve ter 11 dígitos e senha não pode ser vazia");
+            err.put("code", "LOGIN_INVALIDO");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(err);
         }
+
+        Optional<Usuario> usuario = usuarioService.buscarPorCpfESenha(cpf, senha);
+        if (usuario.isEmpty()) {
+            Map<String,Object> err = new HashMap<>();
+            err.put("erro", "CPF ou senha incorretos");
+            err.put("code", "LOGIN_FALHA");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(err);
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        Usuario u = usuario.get();
+        try { // evitar expor senha
+            u.setSenha(null);
+        } catch (Exception ignored) {}
+        response.put("usuario", u);
+        response.put("tipo", u.getTipoUsuario().toString());
+        return ResponseEntity.ok(response);
     }
 }

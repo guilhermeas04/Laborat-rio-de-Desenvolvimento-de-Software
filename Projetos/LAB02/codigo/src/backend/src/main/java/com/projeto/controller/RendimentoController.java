@@ -17,8 +17,12 @@ public class RendimentoController {
 
     @PostMapping
     public ResponseEntity<Rendimento> criarRendimento(@RequestBody Rendimento rendimento) {
-        Rendimento novoRendimento = rendimentoService.salvar(rendimento);
-        return ResponseEntity.ok(novoRendimento);
+        try {
+            Rendimento novoRendimento = rendimentoService.salvar(rendimento);
+            return ResponseEntity.ok(novoRendimento);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping

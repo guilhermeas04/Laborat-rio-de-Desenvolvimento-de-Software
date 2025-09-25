@@ -1,14 +1,15 @@
 package com.projeto.service;
 
-import com.projeto.model.Usuario;
-import com.projeto.model.Rendimento;
-import com.projeto.repository.UsuarioRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
+import com.projeto.model.Rendimento;
+import com.projeto.model.Usuario;
+import com.projeto.repository.UsuarioRepository;
 
 @Service
 public class UsuarioService {
@@ -29,6 +30,10 @@ public class UsuarioService {
 
     public Optional<Usuario> buscarPorCpfESenha(String cpf, String senha) {
         return usuarioRepository.findByCpfAndSenha(cpf, senha);
+    }
+
+    public boolean existeCpf(String cpf) {
+        return usuarioRepository.findByCpf(cpf).isPresent();
     }
 
     public Usuario salvar(Usuario usuario) {

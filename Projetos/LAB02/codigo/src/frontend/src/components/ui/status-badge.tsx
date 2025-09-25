@@ -1,12 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
+type StatusLower = "pendente" | "aprovado" | "rejeitado" | "ativo" | "cancelado";
+type StatusUpper = "PENDENTE" | "APROVADO" | "REJEITADO" | "CANCELADO" | "ATIVO"; // ATIVO para compatibilidade futura
 interface StatusBadgeProps {
-  status: "pendente" | "aprovado" | "rejeitado" | "ativo" | "cancelado";
+  status: StatusLower | StatusUpper;
   className?: string;
 }
 
 const StatusBadge = ({ status, className }: StatusBadgeProps) => {
+  // Normaliza para lowercase para reutilizar lógica existente
+  const norm: StatusLower | string = typeof status === 'string' ? status.toLowerCase() : status;
   const getStatusStyles = (status: string) => {
     switch (status) {
       case "pendente":
@@ -42,9 +46,9 @@ const StatusBadge = ({ status, className }: StatusBadgeProps) => {
   return (
     <Badge
       variant="outline"
-      className={cn(getStatusStyles(status), className)}
+      className={cn(getStatusStyles(norm), className)}
     >
-      {getStatusText(status)}
+      {getStatusText(norm)}
     </Badge>
   );
 };
