@@ -1,8 +1,22 @@
 package com.projeto.model;
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import jakarta.persistence.*;
 import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 
 @Entity
 @Table(name = "pedido") // Tabela "pedidos" no banco de dados
@@ -11,7 +25,37 @@ public class Pedido {
         Em_analise,
         Aprovado,
         Rejeitado,
-        Cancelado
+        Cancelado;
+
+        // Accept aliases from frontend (e.g., "PENDENTE") and normalize input
+        @JsonCreator
+        public static StatusPedido fromString(String value) {
+            if (value == null) return null;
+            String v = value.trim().toUpperCase(java.util.Locale.ROOT);
+            switch (v) {
+                case "PENDENTE":
+                case "EM_ANALISE":
+                case "EM-ANALISE":
+                case "EM ANÁLISE":
+                case "EM ANALISE":
+                    return Em_analise;
+                case "APROVADO":
+                    return Aprovado;
+                case "REJEITADO":
+                    return Rejeitado;
+                case "CANCELADO":
+                    return Cancelado;
+                default:
+                    throw new IllegalArgumentException("StatusPedido inválido: " + value);
+            }
+        }
+
+        // Control JSON serialization to match frontend expectations
+        @JsonValue
+        public String toJson() {
+            if (this == Em_analise) return "PENDENTE"; // keep public API consistent
+            return this.name().toUpperCase(java.util.Locale.ROOT);
+        }
     }
 
     @Id
