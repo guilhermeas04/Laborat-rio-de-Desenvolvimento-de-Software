@@ -140,9 +140,7 @@ const AgentDashboard = () => {
                     </div>
                     <div className="text-right">
                       <StatusBadge status="pendente" />
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {order.value}
-                      </p>
+                      {/* Valor removido pois não existe no schema oficial */}
                     </div>
                   </div>
                 ))}

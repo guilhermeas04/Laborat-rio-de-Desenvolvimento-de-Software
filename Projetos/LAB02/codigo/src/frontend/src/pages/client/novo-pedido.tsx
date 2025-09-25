@@ -3,13 +3,29 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { useNavigate } from "react-router-dom";
 import { apiPost } from "@/lib/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { apiGet, type Veiculo } from "@/lib/api";
 
 const NovoPedido = () => {
   const navigate = useNavigate();
   const [car, setCar] = useState("");
   const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
+  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [loadingVeiculos, setLoadingVeiculos] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const lista = await apiGet<Veiculo[]>("/api/veiculos");
+        setVeiculos(lista);
+      } catch (e) {
+        // fallback silencioso: usuário digita manualmente
+      } finally {
+        setLoadingVeiculos(false);
+      }
+    })();
+  }, []);
   return (
     <div className="min-h-screen bg-background">
       <Navbar userType="client" onLogout={() => navigate("/")} />
@@ -41,7 +57,33 @@ const NovoPedido = () => {
             >
               <div>
                 <label className="block font-medium mb-1">Carro desejado</label>
-                <input className="w-full border p-2 rounded" placeholder="Ex: Honda Civic 2023" value={car} onChange={(e)=>setCar(e.target.value)} required />
+                {loadingVeiculos ? (
+                  <input disabled className="w-full border p-2 rounded" value="Carregando veículos..." />
+                ) : veiculos.length > 0 ? (
+                  <select
+                    className="w-full border p-2 rounded bg-background"
+                    value={car}
+                    onChange={(e) => setCar(e.target.value)}
+                    required
+                  >
+                    <option value="" disabled>
+                      Selecione um veículo
+                    </option>
+                    {veiculos.map((v) => (
+                      <option key={v.id} value={v.modelo}>
+                        {v.modelo} • {v.placa} • {v.ano}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    className="w-full border p-2 rounded"
+                    placeholder="Digite o modelo"
+                    value={car}
+                    onChange={(e) => setCar(e.target.value)}
+                    required
+                  />
+                )}
               </div>
               <div>
                 <label className="block font-medium mb-1">Data do Pedido</label>

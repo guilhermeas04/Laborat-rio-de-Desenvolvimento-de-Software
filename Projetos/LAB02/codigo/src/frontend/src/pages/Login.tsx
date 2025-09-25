@@ -10,23 +10,18 @@ import { toast } from "sonner";
 const Login = () => {
   const navigate = useNavigate();
   const [credentials, setCredentials] = useState({
-    email: "",
+    cpf: "",
     password: "",
+    tipo: "CLIENTE" as "CLIENTE" | "AGENTE",
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simulação de login - em uma app real seria uma API
-    if (credentials.email && credentials.password) {
-      // Demo: email com "agent" redireciona para agente, outros para cliente
-      if (credentials.email.includes("agent")) {
-        toast.success("Login realizado com sucesso!");
-        navigate("/agent");
-      } else {
-        toast.success("Login realizado com sucesso!");
-        navigate("/client");
-      }
+    if (credentials.cpf && credentials.password) {
+      toast.success("Login realizado com sucesso!");
+      if (credentials.tipo === "AGENTE") navigate("/agent"); else navigate("/client");
     } else {
       toast.error("Por favor, preencha todos os campos");
     }
@@ -53,17 +48,42 @@ const Login = () => {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="cpf">CPF</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="seu@email.com"
-                  value={credentials.email}
+                  id="cpf"
+                  inputMode="numeric"
+                  placeholder="000.000.000-00"
+                  value={credentials.cpf}
                   onChange={(e) =>
-                    setCredentials({ ...credentials, email: e.target.value })
+                    setCredentials({ ...credentials, cpf: e.target.value })
                   }
                   required
                 />
+              </div>
+              <div className="space-y-2">
+                <Label>Tipo de Usuário</Label>
+                <div className="flex gap-4 text-sm">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="tipo"
+                      value="CLIENTE"
+                      checked={credentials.tipo === "CLIENTE"}
+                      onChange={() => setCredentials({ ...credentials, tipo: "CLIENTE" })}
+                    />
+                    Cliente
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="tipo"
+                      value="AGENTE"
+                      checked={credentials.tipo === "AGENTE"}
+                      onChange={() => setCredentials({ ...credentials, tipo: "AGENTE" })}
+                    />
+                    Agente
+                  </label>
+                </div>
               </div>
               
               <div className="space-y-2">
@@ -100,11 +120,7 @@ const Login = () => {
 
             <div className="mt-4 p-3 bg-muted rounded-lg">
               <p className="text-xs text-muted-foreground text-center">
-                <strong>Demo:</strong> Use qualquer email/senha. 
-                <br />
-                Email com "agent" → Painel do Agente
-                <br />
-                Outros emails → Painel do Cliente
+                <strong>Demo:</strong> Use qualquer CPF/senha. Selecione o tipo desejado.
               </p>
             </div>
           </CardContent>

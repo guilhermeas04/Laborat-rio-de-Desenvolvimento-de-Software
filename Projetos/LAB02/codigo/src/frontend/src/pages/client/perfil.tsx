@@ -16,7 +16,7 @@ const Perfil = () => {
           <CardContent>
             <form className="space-y-4">
               <input className="w-full border p-2 rounded" placeholder="Nome" />
-              <input className="w-full border p-2 rounded" placeholder="Email" type="email" />
+              <input className="w-full border p-2 rounded" placeholder="CPF" />
               <Button type="submit" className="w-full">Salvar</Button>
             </form>
           </CardContent>
