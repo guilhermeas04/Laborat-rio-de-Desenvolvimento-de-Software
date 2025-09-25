@@ -10,8 +10,7 @@ const EditarPedido = () => {
   const { id } = useParams();
   const [pedido, setPedido] = useState<Pedido | null>(null);
   const [car, setCar] = useState("");
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
+  const [dataPedido, setDataPedido] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,7 +20,7 @@ const EditarPedido = () => {
           const p = await apiGet<Pedido>(`/api/client/pedidos/${id}`);
           setPedido(p);
           setCar(p.car);
-          setDataInicio(p.date);
+          setDataPedido(p.date);
         }
       } finally {
         setLoading(false);
@@ -48,8 +47,8 @@ const EditarPedido = () => {
                 if (!id) return;
                 await apiPut<Pedido>(`/api/client/pedidos/${id}`, {
                   car,
-                  date: dataInicio,
-                  value: pedido?.value,
+                  date: dataPedido,
+            // value removed to align with simplified backend
                 });
                 navigate(`/client/pedido/${id}`);
               }}
@@ -59,12 +58,8 @@ const EditarPedido = () => {
                 <input className="w-full border p-2 rounded" value={car} onChange={(e)=>setCar(e.target.value)} disabled={loading} />
               </div>
               <div>
-                <label className="block font-medium mb-1">Data de início</label>
-                <input className="w-full border p-2 rounded" type="date" value={dataInicio} onChange={(e)=>setDataInicio(e.target.value)} disabled={loading} />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Data de fim</label>
-                <input className="w-full border p-2 rounded" type="date" value={dataFim} onChange={(e)=>setDataFim(e.target.value)} disabled={loading} />
+                <label className="block font-medium mb-1">Data do Pedido</label>
+                <input className="w-full border p-2 rounded" type="date" value={dataPedido} onChange={(e)=>setDataPedido(e.target.value)} disabled={loading} />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>Salvar Alterações</Button>
             </form>

@@ -37,14 +37,13 @@ export type Pedido = {
   clientName?: string;
   status: string;
   date: string;
-  value: string;
 };
+    // value removed to align with simplified backend
 
 export type Veiculo = {
   id: string;
   modelo: string;
   placa: string;
   ano: number;
-  cor: string;
-  diaria: number;
 };
+    // cor and diaria removed to align with simplified backend

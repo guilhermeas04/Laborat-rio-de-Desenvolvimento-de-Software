@@ -42,7 +42,7 @@ const Carros = () => {
               <ul className="space-y-4">
                 {carros.map((carro) => (
                   <li key={carro.id} className="flex justify-between items-center border-b pb-2">
-                    <span>{carro.modelo} • {carro.placa}</span>
+                    <span>{carro.modelo} • {carro.placa} • {carro.ano}</span>
                     <Button size="sm">Editar</Button>
                   </li>
                 ))}

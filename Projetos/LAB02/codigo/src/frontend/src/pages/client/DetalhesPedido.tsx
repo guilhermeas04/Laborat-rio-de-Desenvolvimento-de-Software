@@ -11,7 +11,7 @@ const DetalhesPedido = () => {
 
   const [pedido, setPedido] = useState<Pedido | null>(null);
   const [loading, setLoading] = useState(true);
-  const periodo = "-"; // Placeholder sem cálculo de período real
+  // Removido campo de período pois o modelo atual só possui uma data (data do pedido)
 
   useEffect(() => {
     (async () => {
@@ -47,8 +47,8 @@ const DetalhesPedido = () => {
                 <p><strong>Carro:</strong> {pedido.car}</p>
                 <p><strong>Status:</strong> {pedido.status}</p>
                 <p><strong>Data do Pedido:</strong> {pedido.date}</p>
-                <p><strong>Período de Aluguel:</strong> {periodo}</p>
-                <p><strong>Valor:</strong> {pedido.value}</p>
+                {/* Campo de período removido pois o modelo não possui data fim */}
+                {/* Valor removido - não existe no modelo atual */}
               </>
             )}
           </CardContent>

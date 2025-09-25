@@ -8,8 +8,7 @@ import { useState } from "react";
 const NovoPedido = () => {
   const navigate = useNavigate();
   const [car, setCar] = useState("");
-  const [start, setStart] = useState("");
-  const [end, setEnd] = useState("");
+  const [date, setDate] = useState("");
   const [loading, setLoading] = useState(false);
   return (
     <div className="min-h-screen bg-background">
@@ -29,8 +28,8 @@ const NovoPedido = () => {
                   await apiPost("/api/client/pedidos", {
                     car,
                     clientName: "Cliente Demo",
-                    date: start || new Date().toISOString().slice(0, 10),
-                    value: "R$ 100/dia",
+                    date: date || new Date().toISOString().slice(0, 10),
+              // value removed to align with simplified backend
                   });
                   navigate("/client");
                 } catch (err) {
@@ -45,12 +44,8 @@ const NovoPedido = () => {
                 <input className="w-full border p-2 rounded" placeholder="Ex: Honda Civic 2023" value={car} onChange={(e)=>setCar(e.target.value)} required />
               </div>
               <div>
-                <label className="block font-medium mb-1">Data de início</label>
-                <input className="w-full border p-2 rounded" type="date" value={start} onChange={(e)=>setStart(e.target.value)} />
-              </div>
-              <div>
-                <label className="block font-medium mb-1">Data de fim</label>
-                <input className="w-full border p-2 rounded" type="date" value={end} onChange={(e)=>setEnd(e.target.value)} />
+                <label className="block font-medium mb-1">Data do Pedido</label>
+                <input className="w-full border p-2 rounded" type="date" value={date} onChange={(e)=>setDate(e.target.value)} />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>{loading?"Enviando...":"Solicitar"}</Button>
             </form>
