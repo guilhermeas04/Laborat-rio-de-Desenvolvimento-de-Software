@@ -1,0 +1,158 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import StatusBadge from "@/components/ui/status-badge";
+import Navbar from "@/components/layout/Navbar";
+import { Users, Clock, CheckCircle, Car, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { apiGet, type Pedido, type Veiculo } from "@/lib/api";
+
+const AgentDashboard = () => {
+  const navigate = useNavigate();
+
+  const [pendingOrders, setPendingOrders] = useState<Pedido[]>([]);
+  const [orders, setOrders] = useState<Pedido[]>([]);
+  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    (async () => {
+      try {
+        const [pend, all, veics] = await Promise.all([
+          apiGet<Pedido[]>("/api/agent/pedidos/pendentes"),
+          apiGet<Pedido[]>("/api/client/pedidos"),
+          apiGet<Veiculo[]>("/api/agent/veiculos"),
+        ]);
+        setPendingOrders(pend);
+        setOrders(all);
+        setVeiculos(veics);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const pendingCount = pendingOrders.length;
+  const approvedToday = orders.filter(
+    (o) => o.status === "aprovado" && o.date === todayStr
+  ).length;
+  const contratosAtivos = orders.filter((o) => o.status === "ativo").length;
+  const veiculosDisponiveis = veiculos.length;
+
+  const stats = [
+    { title: "Pedidos Pendentes", value: String(pendingCount), icon: Clock, color: "text-warning" },
+    { title: "Aprovados Hoje", value: String(approvedToday), icon: CheckCircle, color: "text-success" },
+    { title: "Contratos Ativos", value: String(contratosAtivos), icon: FileText, color: "text-info" },
+    { title: "Veículos Disponíveis", value: String(veiculosDisponiveis), icon: Car, color: "text-foreground" },
+  ];
+
+  const handleLogout = () => {
+    navigate("/");
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar userType="agent" onLogout={handleLogout} />
+      
+      <div className="max-w-7xl mx-auto p-6">
+        <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground mb-2">
+              Dashboard do Agente
+            </h1>
+            <p className="text-muted-foreground">
+              Gerencie pedidos, contratos e veículos
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => navigate("/agent")} size="sm">
+              <Clock className="h-4 w-4 mr-2" />
+              Avaliar Pedidos
+            </Button>
+            <Button onClick={() => navigate("/agent/carros")} variant="outline" size="sm">
+              <Car className="h-4 w-4 mr-2" />
+              Veículos
+            </Button>
+            <Button onClick={() => navigate("/agent/contratos")} variant="outline" size="sm">
+              <FileText className="h-4 w-4 mr-2" />
+              Contratos
+            </Button>
+            <Button onClick={() => navigate("/agent/carros/novo")} variant="outline" size="sm">
+              + Cadastrar Veículo
+            </Button>
+          </div>
+        </div>
+
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {stats.map((stat, index) => (
+            <Card key={index}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </p>
+                    <p className="text-2xl font-bold">{stat.value}</p>
+                  </div>
+                  <stat.icon className={`h-8 w-8 ${stat.color}`} />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-6">
+          {/* Pedidos Pendentes */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <CardTitle>Pedidos Pendentes</CardTitle>
+                <CardDescription>
+                  Pedidos aguardando sua análise
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {loading && <p className="text-sm text-muted-foreground">Carregando pedidos...</p>}
+                {!loading && pendingOrders.length === 0 && (
+                  <p className="text-sm text-muted-foreground">Nenhum pedido pendente.</p>
+                )}
+                {pendingOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between p-4 border border-border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                    onClick={() => navigate(`/agent/avaliar/${order.id}`)}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-shrink-0">
+                        <Users className="h-10 w-10 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{(order as any).clientName ?? "Cliente"}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {order.car} • {order.date}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <StatusBadge status="pendente" />
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {order.value}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AgentDashboard;
