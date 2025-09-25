@@ -1,10 +1,10 @@
 package com.example.springboot.store;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 import com.example.springboot.model.Pedido;
 import com.example.springboot.model.Veiculo;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DataStore {
     public static final Map<String, Pedido> pedidos = new ConcurrentHashMap<>();

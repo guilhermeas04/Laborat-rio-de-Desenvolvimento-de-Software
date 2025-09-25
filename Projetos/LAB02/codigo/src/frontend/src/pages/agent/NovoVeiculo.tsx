@@ -10,8 +10,7 @@ const NovoVeiculo = () => {
   const [modelo, setModelo] = useState("");
   const [placa, setPlaca] = useState("");
   const [ano, setAno] = useState<number | "">("");
-  const [cor, setCor] = useState("");
-  const [diaria, setDiaria] = useState<number | "">("");
+  // Removidos campos 'cor' e 'diaria' para alinhar ao backend atual simplificado
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,8 +21,7 @@ const NovoVeiculo = () => {
         modelo,
         placa,
         ano: ano || 0,
-        cor,
-        diaria: diaria || 0,
+  // cor and diaria removed to align with simplified backend
       });
       navigate("/agent/carros");
     } catch (e) {
@@ -60,16 +58,7 @@ const NovoVeiculo = () => {
                   <input type="number" className="w-full border p-2 rounded" placeholder="2024" required value={ano} onChange={(e)=>setAno(Number(e.target.value))} />
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-medium mb-1">Cor</label>
-                  <input className="w-full border p-2 rounded" placeholder="Azul" value={cor} onChange={(e)=>setCor(e.target.value)} />
-                </div>
-                <div>
-                  <label className="block font-medium mb-1">Diária (R$)</label>
-                  <input type="number" className="w-full border p-2 rounded" placeholder="150" value={diaria} onChange={(e)=>setDiaria(Number(e.target.value))} />
-                </div>
-              </div>
+              {/* Campos 'cor' e 'diaria' removidos */}
               <Button type="submit" className="w-full" disabled={loading}>{loading?"Salvando...":"Salvar"}</Button>
             </form>
           </CardContent>

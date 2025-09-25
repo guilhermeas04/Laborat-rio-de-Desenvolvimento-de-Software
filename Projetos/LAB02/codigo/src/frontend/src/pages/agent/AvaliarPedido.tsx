@@ -3,32 +3,39 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { apiPost } from "@/lib/api";
+import { apiGet, apiPost, type Pedido } from "@/lib/api";
+import { useEffect, useState } from "react";
 
 const AvaliarPedido = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // Mock de dados do pedido
-  const pedido = {
-    id,
-    cliente: "João Silva",
-    carro: "Honda Civic 2023",
-    data: "2024-01-16",
-    valor: "R$ 150/dia",
-    score: 720,
-    historico: "Sem restrições, pagamentos em dia.",
-  };
+  const [pedido, setPedido] = useState<Pedido | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      if (!id) return;
+      try {
+        const p = await apiGet<Pedido>(`/api/client/pedidos/${id}`);
+        setPedido(p);
+      } catch (e) {
+        toast.error("Falha ao carregar pedido");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [id]);
 
   const aprovar = async () => {
     await apiPost(`/api/agent/avaliar/${id}?acao=aprovar`);
-    toast.success(`Pedido ${pedido.id} aprovado`);
+    toast.success(`Pedido ${id} aprovado`);
     navigate("/agent");
   };
 
   const reprovar = async () => {
     await apiPost(`/api/agent/avaliar/${id}?acao=reprovar`);
-    toast.error(`Pedido ${pedido.id} reprovado`);
+    toast.error(`Pedido ${id} reprovado`);
     navigate("/agent");
   };
 
@@ -42,23 +49,24 @@ const AvaliarPedido = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Avaliar Pedido: {pedido.id}</CardTitle>
+            <CardTitle>Avaliar Pedido: {id}</CardTitle>
             <CardDescription>Analise e decida aprovar ou reprovar</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <p><strong>Cliente:</strong> {pedido.cliente}</p>
-            <p><strong>Carro:</strong> {pedido.carro}</p>
-            <p><strong>Data:</strong> {pedido.data}</p>
-            <p><strong>Valor:</strong> {pedido.valor}</p>
-            <div className="border-t pt-3 mt-3">
-              <p className="font-medium">Análise de Crédito</p>
-              <p><strong>Score:</strong> {pedido.score}</p>
-              <p><strong>Histórico:</strong> {pedido.historico}</p>
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button onClick={aprovar}>Aprovar</Button>
-              <Button variant="destructive" onClick={reprovar}>Reprovar</Button>
-            </div>
+            {loading && <p className="text-sm text-muted-foreground">Carregando...</p>}
+            {!loading && pedido && (
+              <>
+                <p><strong>Cliente:</strong> {pedido.clientName}</p>
+                <p><strong>Carro:</strong> {pedido.car}</p>
+                <p><strong>Data:</strong> {pedido.date}</p>
+                <p><strong>Status Atual:</strong> {pedido.status}</p>
+                {/* Valor removido - não existe no modelo modelo simplificado */}
+                <div className="flex gap-2 pt-2">
+                  <Button onClick={aprovar}>Aprovar</Button>
+                  <Button variant="destructive" onClick={reprovar}>Reprovar</Button>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
