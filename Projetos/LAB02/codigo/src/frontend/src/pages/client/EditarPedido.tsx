@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { apiGet, apiPut, type Pedido } from "@/lib/api";
+import { apiGet, apiPut, type Pedido, type Veiculo } from "@/lib/api";
 
 const EditarPedido = () => {
   const navigate = useNavigate();
@@ -12,6 +12,8 @@ const EditarPedido = () => {
   const [car, setCar] = useState("");
   const [dataPedido, setDataPedido] = useState("");
   const [loading, setLoading] = useState(true);
+  const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
+  const [loadingVeiculos, setLoadingVeiculos] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -21,6 +23,14 @@ const EditarPedido = () => {
           setPedido(p);
           setCar(p.car);
           setDataPedido(p.date);
+        }
+        try {
+          const vs = await apiGet<Veiculo[]>("/api/veiculos");
+          setVeiculos(vs);
+        } catch (e) {
+          // ignora - fallback para edição texto
+        } finally {
+          setLoadingVeiculos(false);
         }
       } finally {
         setLoading(false);
@@ -55,7 +65,29 @@ const EditarPedido = () => {
             >
               <div>
                 <label className="block font-medium mb-1">Carro desejado</label>
-                <input className="w-full border p-2 rounded" value={car} onChange={(e)=>setCar(e.target.value)} disabled={loading} />
+                {loadingVeiculos ? (
+                  <input disabled className="w-full border p-2 rounded" value="Carregando..." />
+                ) : veiculos.length > 0 ? (
+                  <select
+                    className="w-full border p-2 rounded bg-background"
+                    value={car}
+                    onChange={(e) => setCar(e.target.value)}
+                    disabled={loading}
+                  >
+                    {veiculos.map((v) => (
+                      <option key={v.id} value={v.modelo}>
+                        {v.modelo} • {v.placa} • {v.ano}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    className="w-full border p-2 rounded"
+                    value={car}
+                    onChange={(e) => setCar(e.target.value)}
+                    disabled={loading}
+                  />
+                )}
               </div>
               <div>
                 <label className="block font-medium mb-1">Data do Pedido</label>

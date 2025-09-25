@@ -12,7 +12,6 @@ const Register = () => {
   const navigate = useNavigate();
   const [clientData, setClientData] = useState({
     name: "",
-    email: "",
     password: "",
     rg: "",
     cpf: "",
@@ -24,11 +23,11 @@ const Register = () => {
 
   const [agentData, setAgentData] = useState({
     companyName: "",
-    email: "",
     password: "",
     cnpj: "",
     contact: "",
     address: "",
+    cpfResponsavel: "",
   });
 
   const handleClientSubmit = (e: React.FormEvent) => {
@@ -90,14 +89,13 @@ const Register = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="client-email">Email</Label>
+                      <Label htmlFor="client-cpf">CPF</Label>
                       <Input
-                        id="client-email"
-                        type="email"
-                        placeholder="seu@email.com"
-                        value={clientData.email}
+                        id="client-cpf"
+                        placeholder="000.000.000-00"
+                        value={clientData.cpf}
                         onChange={(e) =>
-                          setClientData({ ...clientData, email: e.target.value })
+                          setClientData({ ...clientData, cpf: e.target.value })
                         }
                         required
                       />
@@ -117,18 +115,7 @@ const Register = () => {
                         required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="client-cpf">CPF</Label>
-                      <Input
-                        id="client-cpf"
-                        placeholder="000.000.000-00"
-                        value={clientData.cpf}
-                        onChange={(e) =>
-                          setClientData({ ...clientData, cpf: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
+                    {/* Campo CPF movido para linha anterior substituindo Email */}
                   </div>
 
                   <div className="space-y-2">
@@ -236,14 +223,13 @@ const Register = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="agent-email">Email Corporativo</Label>
+                      <Label htmlFor="agent-cnpj">CNPJ</Label>
                       <Input
-                        id="agent-email"
-                        type="email"
-                        placeholder="empresa@email.com"
-                        value={agentData.email}
+                        id="agent-cnpj"
+                        placeholder="00.000.000/0000-00"
+                        value={agentData.cnpj}
                         onChange={(e) =>
-                          setAgentData({ ...agentData, email: e.target.value })
+                          setAgentData({ ...agentData, cnpj: e.target.value })
                         }
                         required
                       />
@@ -275,18 +261,32 @@ const Register = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="agent-password">Senha</Label>
-                    <Input
-                      id="agent-password"
-                      type="password"
-                      placeholder="Digite uma senha"
-                      value={agentData.password}
-                      onChange={(e) =>
-                        setAgentData({ ...agentData, password: e.target.value })
-                      }
-                      required
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="agent-cpf-resp">CPF Responsável</Label>
+                      <Input
+                        id="agent-cpf-resp"
+                        placeholder="000.000.000-00"
+                        value={agentData.cpfResponsavel}
+                        onChange={(e) =>
+                          setAgentData({ ...agentData, cpfResponsavel: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="agent-password">Senha</Label>
+                      <Input
+                        id="agent-password"
+                        type="password"
+                        placeholder="Digite uma senha"
+                        value={agentData.password}
+                        onChange={(e) =>
+                          setAgentData({ ...agentData, password: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
                   </div>
 
                   <Button type="submit" className="w-full">
