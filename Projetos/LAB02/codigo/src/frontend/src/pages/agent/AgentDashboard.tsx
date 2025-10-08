@@ -65,10 +65,7 @@ const AgentDashboard = () => {
               <Car className="h-4 w-4 mr-2" />
               Veículos
             </Button>
-            <Button onClick={() => navigate("/agent/contratos")} variant="outline" size="sm">
-              <FileText className="h-4 w-4 mr-2" />
-              Contratos
-            </Button>
+            
             <Button onClick={() => navigate("/agent/carros/novo")} variant="outline" size="sm">
               + Cadastrar Veículo
             </Button>
