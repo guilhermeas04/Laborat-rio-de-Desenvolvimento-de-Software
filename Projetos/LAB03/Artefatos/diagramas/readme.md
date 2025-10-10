@@ -1,5 +1,5 @@
 
-# 💰 Sistema de Moeda Estudantil (Release 1)
+# 💰 Sistema de Moeda Estudantil 
 
 ## 📘 Descrição do Projeto
 
