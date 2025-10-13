@@ -1,0 +1,94 @@
+### CRUD Alunos - API REST
+
+### 1. Listar todos os alunos
+GET http://localhost:8080/api/alunos
+Content-Type: application/json
+
+###
+
+### 2. Buscar aluno por ID
+GET http://localhost:8080/api/alunos/1
+Content-Type: application/json
+
+###
+
+### 3. Criar novo aluno
+POST http://localhost:8080/api/alunos
+Content-Type: application/json
+
+{
+  "nome": "Pedro Oliveira",
+  "documento": "11111111111",
+  "email": "pedro.oliveira@email.com",
+  "login": "pedro.oliveira",
+  "senha": "senha789",
+  "rg": "MG-11111111",
+  "endereco": "Rua Nova, 789",
+  "curso": "Sistemas de Informação",
+  "saldoMoedas": 75.0,
+  "instituicaoId": 1
+}
+
+###
+
+### 4. Atualizar aluno
+PUT http://localhost:8080/api/alunos/1
+Content-Type: application/json
+
+{
+  "nome": "João Silva Santos",
+  "documento": "12345678901",
+  "email": "joao.silva.santos@email.com",
+  "login": "joao.silva.santos",
+  "senha": "novaSenha123",
+  "rg": "MG-12345678",
+  "endereco": "Rua das Flores, 123 - Apto 201",
+  "curso": "Ciência da Computação",
+  "saldoMoedas": 120.0,
+  "instituicaoId": 1
+}
+
+###
+
+### 5. Adicionar moedas ao aluno
+PATCH http://localhost:8080/api/alunos/1/adicionar-moedas?quantidade=50.0
+Content-Type: application/json
+
+###
+
+### 6. Debitar moedas do aluno
+PATCH http://localhost:8080/api/alunos/1/debitar-moedas?quantidade=25.0
+Content-Type: application/json
+
+###
+
+### 7. Deletar aluno
+DELETE http://localhost:8080/api/alunos/3
+Content-Type: application/json
+
+###
+
+### 8. Teste de validação - Criar aluno com dados inválidos
+POST http://localhost:8080/api/alunos
+Content-Type: application/json
+
+{
+  "nome": "",
+  "documento": "",
+  "email": "email-invalido",
+  "login": "",
+  "senha": "",
+  "rg": "",
+  "endereco": "",
+  "curso": "",
+  "saldoMoedas": -10.0,
+  "instituicaoId": null
+}
+
+###
+
+### 9. Teste - Buscar aluno inexistente
+GET http://localhost:8080/api/alunos/999
+Content-Type: application/json
+
+###

@@ -1,0 +1,101 @@
+### CRUD Empresas - API REST
+
+### 1. Listar todas as empresas
+GET http://localhost:8080/api/empresas
+Content-Type: application/json
+
+###
+
+### 2. Buscar empresa por ID
+GET http://localhost:8080/api/empresas/1
+Content-Type: application/json
+
+###
+
+### 3. Criar nova empresa
+POST http://localhost:8080/api/empresas
+Content-Type: application/json
+
+{
+  "nome": "Empresa X",
+  "documento": "12345678900",
+  "email": "contato@empresa.com",
+  "login": "empresa.x",
+  "senha": "senha123",
+  "nomeFantasia": "Empresa X LTDA",
+  "cnpj": "12.345.678/0001-00"
+}
+
+###
+
+### 4. Atualizar empresa
+PUT http://localhost:8080/api/empresas/1
+Content-Type: application/json
+
+{
+  "nome": "Empresa Y Atualizada",
+  "documento": "98765432100",
+  "email": "contato@empresay.com",
+  "login": "empresa.y",
+  "senha": "novaSenha456",
+  "nomeFantasia": "Empresa Y LTDA",
+  "cnpj": "98.765.432/0001-99"
+}
+
+###
+
+### 5. Atualização parcial - Alterar e-mail
+PATCH http://localhost:8080/api/empresas/1
+Content-Type: application/json
+
+{
+  "email": "novoemail@empresa.com"
+}
+
+###
+
+### 6. Atualização parcial - Alterar senha
+PATCH http://localhost:8080/api/empresas/1
+Content-Type: application/json
+
+{
+  "senha": "senhaNova789"
+}
+
+###
+
+### 7. Atualização parcial - Alterar nome fantasia
+PATCH http://localhost:8080/api/empresas/1
+Content-Type: application/json
+
+{
+  "nomeFantasia": "Empresa X Tech"
+}
+
+###
+
+### 8. Deletar empresa
+DELETE http://localhost:8080/api/empresas/3
+Content-Type: application/json
+
+###
+
+### 9. Teste de validação - Criar empresa com dados inválidos
+POST http://localhost:8080/api/empresas
+Content-Type: application/json
+
+{
+  "nome": "",
+  "documento": "",
+  "email": "email-invalido",
+  "login": "",
+  "senha": "",
+  "nomeFantasia": "",
+  "cnpj": ""
+}
+
+###
+
+### 10. Teste - Buscar empresa inexistente
+GET http://localhost:8080/api/empresas/999
+Content-Type: application/json
