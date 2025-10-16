@@ -1,14 +1,17 @@
 import { Routes, Route, Link, Navigate } from 'react-router-dom'
 import { LayoutDashboard, Gift, UserRound, History, Building2, Send, LogIn } from 'lucide-react'
-import Home from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Students from './pages/Students'
+import StudentDetail from './pages/StudentDetail'
 import Transactions from './pages/Transactions'
 import Vantagens from './pages/Vantagens'
 import VantagemDetalhe from './pages/VantagemDetalhe'
 import Perfil from './pages/Perfil'
+import Cadastro from './pages/Cadastro'
 import CadastroAluno from './pages/CadastroAluno'
+import CadastroProfessor from './pages/CadastroProfessor'
+import CadastroEmpresa from './pages/CadastroEmpresa'
 import ProfessorEnviar from './pages/ProfessorEnviar'
 import ProfessorHistorico from './pages/ProfessorHistorico'
 import EmpresaCadastro from './pages/EmpresaCadastro'
@@ -105,8 +108,4 @@ export default function App() {
   )
 }
 
-function RedirectToDefault() {
-  const { user } = useAuth()
-  if (!user) return <Shell><Home /></Shell>
-  return <Navigate to={defaultDashboard(user.role)} replace />
-}
+// RedirectToDefault no longer used

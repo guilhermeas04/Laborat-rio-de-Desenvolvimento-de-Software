@@ -103,6 +103,34 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <div className="card p-5">
+        <div className="font-medium mb-3">Alunos Cadastrados</div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-slate-500">
+                <th className="py-2">ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Saldo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {students.map((s) => (
+                <tr key={s.id}>
+                  <td className="py-2">{s.id}</td>
+                  <td>{s.name}</td>
+                  <td>{s.email}</td>
+                  <td>{s.saldo}</td>
+                  <td className="text-right"><Link to={`/students/${s.id}`} className="text-brand hover:text-brand-dark">ver/editar</Link></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div>
         <div className="flex items-center justify-between mb-3">
           <div className="font-medium">Vantagens em Destaque</div>
