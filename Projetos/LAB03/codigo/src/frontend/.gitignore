@@ -1,0 +1,4 @@
+node_modules
+.DS_Store
+.vscode
+vite.config.ts.timestamp-*
