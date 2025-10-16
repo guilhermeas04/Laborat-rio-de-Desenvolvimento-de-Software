@@ -1,14 +1,17 @@
 import { Routes, Route, Link, Navigate } from 'react-router-dom'
 import { LayoutDashboard, Gift, UserRound, History, Building2, Send, LogIn } from 'lucide-react'
-import Home from './pages/Home'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Students from './pages/Students'
+import StudentDetail from './pages/StudentDetail'
 import Transactions from './pages/Transactions'
 import Vantagens from './pages/Vantagens'
 import VantagemDetalhe from './pages/VantagemDetalhe'
 import Perfil from './pages/Perfil'
+import Cadastro from './pages/Cadastro'
 import CadastroAluno from './pages/CadastroAluno'
+import CadastroProfessor from './pages/CadastroProfessor'
+import CadastroEmpresa from './pages/CadastroEmpresa'
 import ProfessorEnviar from './pages/ProfessorEnviar'
 import ProfessorHistorico from './pages/ProfessorHistorico'
 import EmpresaCadastro from './pages/EmpresaCadastro'
@@ -85,25 +88,26 @@ export default function App() {
       <Route path="/login/professor" element={<Login fixedRole="professor" />} />
       <Route path="/login/empresa" element={<Login fixedRole="empresa" />} />
       <Route path="/" element={<Navigate to="/login" replace />} />
+  <Route path="/cadastro" element={<Cadastro />} />
       <Route path="/dashboard" element={<Shell><RequireAuth role="aluno"><Dashboard /></RequireAuth></Shell>} />
   <Route path="/vantagens" element={<Shell><RequireAuth role="aluno"><Vantagens /></RequireAuth></Shell>} />
   <Route path="/vantagens/:id" element={<Shell><RequireAuth role="aluno"><VantagemDetalhe /></RequireAuth></Shell>} />
   <Route path="/perfil" element={<Shell><RequireAuth role="aluno"><Perfil /></RequireAuth></Shell>} />
-  <Route path="/cadastro-aluno" element={<Shell><CadastroAluno /></Shell>} />
+  <Route path="/cadastro-aluno" element={<Navigate to="/cadastro/aluno" replace />} />
+  <Route path="/cadastro/aluno" element={<CadastroAluno />} />
+  <Route path="/cadastro/professor" element={<CadastroProfessor />} />
+  <Route path="/cadastro/empresa" element={<CadastroEmpresa />} />
   <Route path="/prof/enviar" element={<Shell><RequireAuth role="professor"><ProfessorEnviar /></RequireAuth></Shell>} />
   <Route path="/prof/historico" element={<Shell><RequireAuth role="professor"><ProfessorHistorico /></RequireAuth></Shell>} />
   <Route path="/empresa" element={<Shell><RequireAuth role="empresa"><EmpresaCadastro /></RequireAuth></Shell>} />
   <Route path="/empresa/vantagens" element={<Shell><RequireAuth role="empresa"><EmpresaVantagens /></RequireAuth></Shell>} />
   <Route path="/empresa/vantagens/nova" element={<Shell><RequireAuth role="empresa"><EmpresaNovaVantagem /></RequireAuth></Shell>} />
-      <Route path="/students" element={<Shell><Students /></Shell>} />
+      <Route path="/students" element={<Shell><RequireAuth><Students /></RequireAuth></Shell>} />
+      <Route path="/students/:id" element={<Shell><RequireAuth><StudentDetail /></RequireAuth></Shell>} />
       <Route path="/transactions" element={<Shell><Transactions /></Shell>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
 
-function RedirectToDefault() {
-  const { user } = useAuth()
-  if (!user) return <Shell><Home /></Shell>
-  return <Navigate to={defaultDashboard(user.role)} replace />
-}
+// RedirectToDefault no longer used

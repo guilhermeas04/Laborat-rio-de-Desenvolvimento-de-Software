@@ -51,7 +51,7 @@ export default function Login({ fixedRole }: { fixedRole?: Role }) {
             </div>
           </div>
           <div className="flex items-center justify-between">
-            <Link to="/cadastro-aluno" className="text-brand hover:text-brand-dark text-sm">Não tem uma conta? Cadastre-se</Link>
+            <Link to="/cadastro" className="text-brand hover:text-brand-dark text-sm">Não tem uma conta? Cadastre-se</Link>
             <button type="submit" className="btn">Entrar</button>
           </div>
         </form>

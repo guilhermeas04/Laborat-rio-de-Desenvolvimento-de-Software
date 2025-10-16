@@ -1,5 +1,5 @@
 import { store } from '../lib/store'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -10,6 +10,7 @@ export default function Dashboard() {
     { title: 'Recebidas', value: `${tx.filter(t=>t.value>0).reduce((a,b)=>a+b.value,0)}`, hint: 'Últimos 30 dias' },
   ]
   const perks = store.getDB().advantages
+  const students = store.getDB().students
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -45,6 +46,34 @@ export default function Dashboard() {
               <div className={`font-medium ${t.value>=0 ? 'text-emerald-600' : 'text-rose-600'}`}>{t.value>=0?`+${t.value}`:`${t.value}`}</div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="card p-5">
+        <div className="font-medium mb-3">Alunos Cadastrados</div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-slate-500">
+                <th className="py-2">ID</th>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>Saldo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {students.map((s) => (
+                <tr key={s.id}>
+                  <td className="py-2">{s.id}</td>
+                  <td>{s.name}</td>
+                  <td>{s.email}</td>
+                  <td>{s.saldo}</td>
+                  <td className="text-right"><Link to={`/students/${s.id}`} className="text-brand hover:text-brand-dark">ver/editar</Link></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
 

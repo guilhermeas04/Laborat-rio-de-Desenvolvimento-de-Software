@@ -39,6 +39,7 @@ type DB = {
   advantages: Advantage[]
   professor: { available: number }
   company: { name: string }
+  passwords?: Record<string, string>
 }
 
 const KEY = 'lab03-db'
@@ -78,6 +79,11 @@ function seed(): DB {
     ],
     professor: { available: 5000 },
     company: { name: 'Empresa XYZ' },
+    passwords: {
+      u1: '123', u2: '123', u3: '123',
+      u4: '123', u5: '123', u6: '123',
+      u7: '123', u8: '123', u9: '123'
+    },
   }
   return db
 }
@@ -89,7 +95,15 @@ function load(): DB {
     localStorage.setItem(KEY, JSON.stringify(db))
     return db
   }
-  return JSON.parse(raw)
+  const parsed: DB = JSON.parse(raw)
+  // Backward-compat: ensure passwords map exists
+  if (!parsed.passwords) {
+    const pwd: Record<string, string> = {}
+    for (const u of parsed.users) pwd[u.id] = '123'
+    parsed.passwords = pwd
+    save(parsed)
+  }
+  return parsed
 }
 
 function save(db: DB) {
@@ -104,6 +118,51 @@ export const store = {
   },
   getDB(): DB {
     return load()
+  },
+  registerStudent(name: string, email: string, password: string) {
+    const db = load()
+    if (db.users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+      throw new Error('E-mail já cadastrado')
+    }
+    const newUserId = 'u' + (db.users.length + 1)
+    const newStudentId = 's' + (db.students.length + 1)
+    const user: User = { id: newUserId, role: 'aluno', name, email }
+    const student: Student = { id: newStudentId, name, email, saldo: 0 }
+    db.users.push(user)
+    db.students.push(student)
+    if (!db.passwords) db.passwords = {}
+    db.passwords[newUserId] = password
+    save(db)
+    return { user, student }
+  },
+  updateStudent(id: string, data: Partial<Pick<Student, 'name' | 'email' | 'saldo'>>) {
+    const db = load()
+    const st = db.students.find(s => s.id === id)
+    if (!st) throw new Error('Aluno não encontrado')
+    Object.assign(st, data)
+    // keep user email/name in sync if email or name changed
+    const user = db.users.find(u => u.email === st.email || u.id === db.users.find(u2=>u2.email===st.email)?.id)
+    if (user) {
+      if (data.name) user.name = data.name
+      if (data.email) user.email = data.email
+    }
+    save(db)
+    return st
+  },
+  deleteStudent(id: string) {
+    const db = load()
+    const st = db.students.find(s => s.id === id)
+    if (!st) return
+    db.students = db.students.filter(s => s.id !== id)
+    db.transactions = db.transactions.filter(t => t.studentId !== id)
+    // remove user with same email
+    const user = db.users.find(u => u.email === st.email)
+    if (user) {
+      db.users = db.users.filter(u => u.id !== user.id)
+      if (db.passwords) delete db.passwords[user.id]
+      if (db.currentUserId === user.id) delete db.currentUserId
+    }
+    save(db)
   },
   login(email: string, role: Role) {
     const db = load()
