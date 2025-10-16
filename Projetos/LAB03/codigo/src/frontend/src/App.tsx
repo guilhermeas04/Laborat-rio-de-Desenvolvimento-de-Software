@@ -15,8 +15,8 @@ import EmpresaCadastro from './pages/EmpresaCadastro'
 import EmpresaVantagens from './pages/EmpresaVantagens'
 import EmpresaNovaVantagem from './pages/EmpresaNovaVantagem'
 import TopBar from './components/TopBar'
-import { useAuth, RequireAuth } from './context/Auth'
-import { defaultDashboard } from './lib/store'
+import { Toaster } from './components/Toaster'
+import { useAuth, RequireAuth, defaultDashboard } from './context/Auth'
 
 function Shell({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuth()
@@ -48,7 +48,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         {user ? (
           <button onClick={logout} className="btn w-full justify-center">Sair</button>
         ) : (
-          <Link to="/login" className="btn w-full justify-center"><LogIn className="mr-2" size={16}/>Login</Link>
+          <Link to="/login" className="btn w-full justify-center"><LogIn className="mr-2" size={16} />Login</Link>
         )}
       </aside>
       <main className="flex-1 p-4 md:p-8">
@@ -79,26 +79,29 @@ function NavItem({ to, icon, children }: { to: string, icon?: React.ReactNode, c
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/login/aluno" element={<Login fixedRole="aluno" />} />
-      <Route path="/login/professor" element={<Login fixedRole="professor" />} />
-      <Route path="/login/empresa" element={<Login fixedRole="empresa" />} />
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="/dashboard" element={<Shell><RequireAuth role="aluno"><Dashboard /></RequireAuth></Shell>} />
-  <Route path="/vantagens" element={<Shell><RequireAuth role="aluno"><Vantagens /></RequireAuth></Shell>} />
-  <Route path="/vantagens/:id" element={<Shell><RequireAuth role="aluno"><VantagemDetalhe /></RequireAuth></Shell>} />
-  <Route path="/perfil" element={<Shell><RequireAuth role="aluno"><Perfil /></RequireAuth></Shell>} />
-  <Route path="/cadastro-aluno" element={<Shell><CadastroAluno /></Shell>} />
-  <Route path="/prof/enviar" element={<Shell><RequireAuth role="professor"><ProfessorEnviar /></RequireAuth></Shell>} />
-  <Route path="/prof/historico" element={<Shell><RequireAuth role="professor"><ProfessorHistorico /></RequireAuth></Shell>} />
-  <Route path="/empresa" element={<Shell><RequireAuth role="empresa"><EmpresaCadastro /></RequireAuth></Shell>} />
-  <Route path="/empresa/vantagens" element={<Shell><RequireAuth role="empresa"><EmpresaVantagens /></RequireAuth></Shell>} />
-  <Route path="/empresa/vantagens/nova" element={<Shell><RequireAuth role="empresa"><EmpresaNovaVantagem /></RequireAuth></Shell>} />
-      <Route path="/students" element={<Shell><Students /></Shell>} />
-      <Route path="/transactions" element={<Shell><Transactions /></Shell>} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Toaster />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/login/aluno" element={<Login fixedRole="aluno" />} />
+        <Route path="/login/professor" element={<Login fixedRole="professor" />} />
+        <Route path="/login/empresa" element={<Login fixedRole="empresa" />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/dashboard" element={<Shell><RequireAuth role="aluno"><Dashboard /></RequireAuth></Shell>} />
+        <Route path="/vantagens" element={<Shell><RequireAuth role="aluno"><Vantagens /></RequireAuth></Shell>} />
+        <Route path="/vantagens/:id" element={<Shell><RequireAuth role="aluno"><VantagemDetalhe /></RequireAuth></Shell>} />
+        <Route path="/perfil" element={<Shell><RequireAuth role="aluno"><Perfil /></RequireAuth></Shell>} />
+        <Route path="/cadastro-aluno" element={<Shell><CadastroAluno /></Shell>} />
+        <Route path="/prof/enviar" element={<Shell><RequireAuth role="professor"><ProfessorEnviar /></RequireAuth></Shell>} />
+        <Route path="/prof/historico" element={<Shell><RequireAuth role="professor"><ProfessorHistorico /></RequireAuth></Shell>} />
+        <Route path="/empresa" element={<Shell><RequireAuth role="empresa"><EmpresaCadastro /></RequireAuth></Shell>} />
+        <Route path="/empresa/vantagens" element={<Shell><RequireAuth role="empresa"><EmpresaVantagens /></RequireAuth></Shell>} />
+        <Route path="/empresa/vantagens/nova" element={<Shell><RequireAuth role="empresa"><EmpresaNovaVantagem /></RequireAuth></Shell>} />
+        <Route path="/students" element={<Shell><Students /></Shell>} />
+        <Route path="/transactions" element={<Shell><Transactions /></Shell>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   )
 }
 

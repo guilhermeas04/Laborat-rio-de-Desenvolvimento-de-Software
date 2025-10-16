@@ -1,0 +1,67 @@
+### Auth API - Login
+
+### 1. Login como Aluno
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "joao.silva",
+  "senha": "senha123"
+}
+
+###
+
+### 2. Login como Professor
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "prof.carlos",
+  "senha": "senha456"
+}
+
+###
+
+### 3. Login como Empresa
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "empresa.xyz",
+  "senha": "senha789"
+}
+
+###
+
+### 4. Teste - Login com credenciais inválidas
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "usuario.inexistente",
+  "senha": "senhaerrada"
+}
+
+###
+
+### 5. Teste - Login sem senha
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "joao.silva",
+  "senha": ""
+}
+
+###
+
+### 6. Teste - Login sem login
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "",
+  "senha": "senha123"
+}
+
+###

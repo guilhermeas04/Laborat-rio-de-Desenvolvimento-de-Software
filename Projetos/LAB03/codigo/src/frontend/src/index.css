@@ -33,3 +33,24 @@ body {
 .card-section {
   @apply p-4 border-b last:border-b-0;
 }
+
+/* Toast animations */
+@keyframes slide-in-from-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation: slide-in-from-right 0.3s ease-out;
+}
+
+.slide-in-from-right {
+  animation-name: slide-in-from-right;
+}

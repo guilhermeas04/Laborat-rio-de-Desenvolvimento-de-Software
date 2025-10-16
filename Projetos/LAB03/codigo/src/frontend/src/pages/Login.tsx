@@ -1,25 +1,41 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Role, defaultDashboard } from '../lib/store'
-import { useAuth } from '../context/Auth'
+import { Role } from '../lib/store'
+import { useAuth, defaultDashboard } from '../context/Auth'
+import { useToast } from '../hooks/use-toast'
 
 export default function Login({ fixedRole }: { fixedRole?: Role }) {
-  const [email, setEmail] = useState('')
+  const [loginInput, setLoginInput] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<Role>(fixedRole || 'aluno')
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
   const loc = useLocation()
   const { login } = useAuth()
+  const { success, error } = useToast()
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!email || !password) return
+    if (!loginInput || !password) {
+      error('Por favor, preencha todos os campos')
+      return
+    }
+
+    setLoading(true)
     try {
-      login(email, role)
-      const to = (loc.state as any)?.from?.pathname || defaultDashboard(role)
+      await login(loginInput, password)
+      success('Login realizado com sucesso!')
+
+      // Get user role from response to determine redirect
+      const userData = JSON.parse(localStorage.getItem('lab03-auth') || '{}')
+      const userRole = userData.role || role
+
+      const to = (loc.state as any)?.from?.pathname || defaultDashboard(userRole)
       navigate(to, { replace: true })
-    } catch (e) {
-      alert('Falha no login (verifique e-mail/role nas seeds).')
+    } catch (err: any) {
+      error(err.message || 'Falha no login. Verifique suas credenciais.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -29,30 +45,30 @@ export default function Login({ fixedRole }: { fixedRole?: Role }) {
         <h2 className="text-xl font-semibold mb-6">Entrar</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">E-mail</label>
-            <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ana@uni.br" />
+            <label className="label">Login</label>
+            <input
+              className="input"
+              value={loginInput}
+              onChange={(e) => setLoginInput(e.target.value)}
+              placeholder="seu.login"
+              disabled={loading}
+            />
           </div>
           <div>
             <label className="label">Senha</label>
-            <input className="input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <div>
-            <label className="label">Perfil de Acesso</label>
-            <div className="flex gap-3 text-sm">
-              <label className="flex items-center gap-1 opacity-90">
-                <input type="radio" name="role" checked={role==='aluno'} onChange={()=>!fixedRole && setRole('aluno')} disabled={!!fixedRole && fixedRole!=='aluno'} /> Aluno
-              </label>
-              <label className="flex items-center gap-1 opacity-90">
-                <input type="radio" name="role" checked={role==='professor'} onChange={()=>!fixedRole && setRole('professor')} disabled={!!fixedRole && fixedRole!=='professor'} /> Professor
-              </label>
-              <label className="flex items-center gap-1 opacity-90">
-                <input type="radio" name="role" checked={role==='empresa'} onChange={()=>!fixedRole && setRole('empresa')} disabled={!!fixedRole && fixedRole!=='empresa'} /> Empresa
-              </label>
-            </div>
+            <input
+              className="input"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
           </div>
           <div className="flex items-center justify-between">
             <Link to="/cadastro-aluno" className="text-brand hover:text-brand-dark text-sm">Não tem uma conta? Cadastre-se</Link>
-            <button type="submit" className="btn">Entrar</button>
+            <button type="submit" className="btn" disabled={loading}>
+              {loading ? 'Entrando...' : 'Entrar'}
+            </button>
           </div>
         </form>
       </div>
